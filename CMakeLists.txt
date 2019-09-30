@@ -9,13 +9,14 @@ project(lab3_package)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
-  moveit_control_interface
-  moveit_core
-  moveit_kinematics
-  moveit_move_group
-  moveit_planning_interface
-  moveit_ros_planning
-  osrf_gear
+  #moveit_control_interface
+  #moveit_core
+  #moveit_kinematics
+  #moveit_move_group
+  #moveit_planning_interface
+  #moveit_ros_planning
+  #osrf_gear
+  #catkin can't seem to find any of these. commenting out for now - Naomi
   roscpp
   std_msgs
   tf_conversions
@@ -142,7 +143,7 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/lab3_package_node.cpp)
-
+add_executable(${PROJECT_NAME}_node src/lab3_node.cpp)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -157,7 +158,7 @@ include_directories(
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
-
+target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES})
 #############
 ## Install ##
 #############

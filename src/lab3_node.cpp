@@ -1,44 +1,48 @@
-/* ---------------------------------------------------------------------------
-
-This is just some Basic "boilerplate" code. I don't know more about this
-project right now so I might as well get started.
-
--Naomi Hourihane, Sunday 9/29
-------------------------------------------------------------------------------*/
 
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 #include <sstream>
-#include <stdlib.h>
-//These are some of the same includes that were in my source code for lab 2.
-//Idk what else to put for now
+#include <stdlib.h>//These are some of the same includes that were in my source code for lab 2.
 
+#include "std_srvs/Trigger.h"
 
 //some global variables can go here
 
-float hand_posX = 0;
-float hand_posY = 0;
-float hand_posZ = 0;
 
-float base_posX = 0;
-float base_posY = 0;
-float base_posZ = 0;
-
-//Idk what global variables we are going to need so I'm just guessing.
-
-//Put some callback functions here.
+//some callback functions go here
 
 void HelloWorldCallback(){
-	ROS_INFO("Hello World! This is a callback!\n");
+	ROS_INFO("Hello world! This is a callback!\n");
+	//Idk where this is printing to but it's getting called correctly
 }
 
 
 int main(int argc, char **argv){
 	ROS_INFO("Main node started!\n");
+	ros::init(argc, argv, "lab3_package_node");//does this have to match name of node in CMakeLists?
+	ros::NodeHandle handle; //THE NODEHANDLE IS "handle" !!!
+	
 
-	ros::Rate loop_rate(1);//The loop rate is 1 hz
+		
+	ros::ServiceClient begin_client = handle.serviceClient<std_srvs::Trigger>("Service Name");
+	//Rename the service name??
+	//Declares a variable of type ros::ServiceClient called begin_client
+	
+	std_srvs::Trigger begin_comp;
+	//Declares a variable of type std_srvs::Trigger called begin_comp
+	
+	begin_client.call(begin_comp); //Call the service
+	
+	ROS_WARN("Competition service returned failure: %s \n", begin_comp.response.message.c_str());
+
+
+	ros::Rate loop_rate(1);//loop rate is 1 hz
 	while (ros::ok()){
 		HelloWorldCallback;
+		ROS_INFO("Calling callback function!\n");
+		ros::spinOnce();
+		loop_rate.sleep();
 	}
+
 	return 0;
 }
