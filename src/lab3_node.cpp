@@ -5,15 +5,22 @@
 #include <stdlib.h>//These are some of the same includes that were in my source code for lab 2.
 
 #include "std_srvs/Trigger.h"
+#include "sensor_msgs"
+#include "trajectory_msgs/JointTrajetory" //for ariac/arm/command topic
 
-//some global variables can go here
+//global variables
+std::vector<osrf_gear::Order> order_vector; //global vector. Orders published to topic ariac/orders have message type osrf_gear/Order.
 
 
 //some callback functions go here
 
-void HelloWorldCallback(){
+/*void HelloWorldCallback(){
 	ROS_INFO("Hello world! This is a callback!\n");
 	//Idk where this is printing to but it's getting called correctly
+}*/
+
+void orderCallBack(){ //What are the arguments to the callback?
+	ROS_INFO("Orders received!\n");
 }
 
 
@@ -35,11 +42,12 @@ int main(int argc, char **argv){
 	
 	ROS_WARN("Competition service returned failure: %s \n", begin_comp.response.message.c_str());
 
+	ros::Subscriber order_sub = handle.subscribe("ariac/orders", 10, orderCallback);
 
 	ros::Rate loop_rate(1);//loop rate is 1 hz
 	while (ros::ok()){
-		HelloWorldCallback;
-		ROS_INFO("Calling callback function!\n");
+		//HelloWorldCallback;
+		//ROS_INFO("Calling callback function!\n");
 		ros::spinOnce();
 		loop_rate.sleep();
 	}
