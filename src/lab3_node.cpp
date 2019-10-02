@@ -140,8 +140,25 @@ class MyCompetitionClass
       }
 
       void process_orders() {
-          //for each vector in received_orders_
+        int order_len = received_orders_.size();
+        
+        //for each vector in received_orders_
+        for (int order = 0; order < order_len; order++) {
+            osrf_gear::Order current_order = received_orders_[order];
+            
             //find matching part from latest_image_ -- if/else statement
+            int kit_len = current_order.kits.size();
+            
+            for (int kit = 0; kit < kit_len; kit++) {
+                int obj_len = current_order.kits[kit].objects.size();
+                ROS_INFO_STREAM("Found " << obj_len << " objects in kit " << kit);
+                
+                for (int obj = 0; obj < obj_len; obj++) {
+                    
+                }
+            }
+        }
+
             //output message about object type, location, and pose -- basic formatting
             //transform relative position of part to world position of part -- in assignment
             //move arm to world position
@@ -154,6 +171,8 @@ class MyCompetitionClass
       sensor_msgs::JointState current_joint_states_;
       bool has_been_zeroed_;
       osrf_gear::LogicalCameraImage::ConstPtr latest_image_;
+      
+      
 };
 
 void proximity_sensor_callback(const sensor_msgs::Range::ConstPtr & msg) {
