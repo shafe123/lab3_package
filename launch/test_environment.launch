@@ -1,0 +1,8 @@
+<launch>
+	<include file="$(find osrf_gear)/launch/sample_environment.launch"/>
+	<include file="$(find ur10_moveit_config)/launch/ur10_moveit_planning_execution.launch">
+	<arg name = "sim" default = "true"/>
+	</include>
+	
+	<include file="$(find lab3_package)/launch/grading.launch"/>
+</launch> 

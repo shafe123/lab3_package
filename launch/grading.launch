@@ -1,0 +1,7 @@
+<launch>
+    <node pkg="lab3_package" name = "lab3_package_node" type="lab3_package_node" output="screen"/>
+    <!-- idk what else to put in the launch file, since it sounds like the simulation and
+        stuff is going to be launched separately.-->
+
+    <!-- include rviz in here??? idk -->
+</launch>
