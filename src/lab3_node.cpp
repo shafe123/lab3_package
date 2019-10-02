@@ -141,6 +141,8 @@ class MyCompetitionClass
 
       void process_orders() {
         int order_len = received_orders_.size();
+        std::set<int> used_indices;
+        std::vector<int> completed_orders;
         
         //for each vector in received_orders_
         for (int order = 0; order < order_len; order++) {
@@ -149,19 +151,38 @@ class MyCompetitionClass
             //find matching part from latest_image_ -- if/else statement
             int kit_len = current_order.kits.size();
             
+            //loop through each kit in the current order
             for (int kit = 0; kit < kit_len; kit++) {
                 int obj_len = current_order.kits[kit].objects.size();
-                ROS_INFO_STREAM("Found " << obj_len << " objects in kit " << kit);
+                ROS_INFO_STREAM(10, "Found " << obj_len << " objects in kit " << kit);
                 
+                //loop through each object in each kit
                 for (int obj = 0; obj < obj_len; obj++) {
+                    osrf_gear::KitObject current_obj = current_order.kits[kit].objects[obj];
                     
+                    ROS_INFO_STREAM(10, "Finding matching object for " << current_obj.type << "...");
+                    
+                    //each obj in the kit, find a matching object on the tray
+                    int model_len = latest_image_->models.size();
+                    for (int model = 0; model < model_len; model++) {
+                        osrf_gear::Model current_model = latest_image_->models[model];
+                        
+                        //if the object on the tray is of the right type, move arm to that position
+                        //also remove that object on the tray from consideration for now
+                        //if object on tray has already been used, do not pull that object
+                        if (current_model.type.compare(current_obj.type) == 0 && used_indices.find(model) == used_indices.end()) {
+                            ROS_INFO_STREAM("Grabbing " << current_model.type << " at pose " << current_model.pose);
+                            used_indices.insert(model);
+                            //TODO:  move arm to position
+                            //transform relative position of part to world position of part -- in assignment
+                            //move arm to world position
+                        }
+                    }
                 }
             }
         }
-
-            //output message about object type, location, and pose -- basic formatting
-            //transform relative position of part to world position of part -- in assignment
-            //move arm to world position
+        
+        completed_orders.clear();
       }
 
     private:
