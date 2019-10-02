@@ -33,6 +33,19 @@
 #include <trajectory_msgs/JointTrajectory.h>
 // %EndTag(INCLUDE_STATEMENTS)%
 
+// MoveIt header files
+#include "moveit/move_group_interface/move_group_interface.h"
+#include "moveit/planning_scene_interface/planning_scene_interface.h"
+// Transformation header files
+#include "tf2_ros/transform_listener.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include "geometry_msgs/TransformStamped.h"
+
+// Declare the transformation buffer to maintain a list of transformations
+tf2_ros::Buffer tfBuffer;
+// Instantiate a listener that listens to the tf and tf_static topics and to update the buffer.
+tf2_ros::TransformListener tfListener(tfBuffer);
+
 // %Tag(START_COMP)%
 /// Start the competition by waiting for and then calling the start ROS Service.
 void start_competition(ros::NodeHandle & node) {
@@ -61,6 +74,8 @@ void start_competition(ros::NodeHandle & node) {
 class MyCompetitionClass
 {
     public:
+        moveit::planning_interface::MoveGroupInterface move_group("manipulator");
+    
       explicit MyCompetitionClass(ros::NodeHandle & node)
       : has_been_zeroed_(false)
       {
@@ -144,6 +159,15 @@ class MyCompetitionClass
         std::set<int> used_indices;
         std::vector<int> completed_orders;
         
+        geometry_msgs::TransformStamped tfStamped;
+        try {
+            tfStamped = tfBuffer.lookupTransform(move_group.getPlanningFrame().c_str(), latest_image_->pose.c_str(), ros::Time(0.0), ros::Duration(1.0));
+            ROS_DEBUG("Transform to [%s] from [%s]", tfStamped.header.frame_id.c_str(), tfStamped.child_frame_id.c_str());
+        } 
+        catch (tf2::TransformException &ex) {
+            ROS_ERROR("%s", ex.what());
+        }
+        
         //for each vector in received_orders_
         for (int order = 0; order < order_len; order++) {
             osrf_gear::Order current_order = received_orders_[order];
@@ -154,13 +178,13 @@ class MyCompetitionClass
             //loop through each kit in the current order
             for (int kit = 0; kit < kit_len; kit++) {
                 int obj_len = current_order.kits[kit].objects.size();
-                ROS_INFO_STREAM(10, "Found " << obj_len << " objects in kit " << kit);
+                ROS_INFO_STREAM("Found " << obj_len << " objects in kit " << kit);
                 
                 //loop through each object in each kit
                 for (int obj = 0; obj < obj_len; obj++) {
                     osrf_gear::KitObject current_obj = current_order.kits[kit].objects[obj];
                     
-                    ROS_INFO_STREAM(10, "Finding matching object for " << current_obj.type << "...");
+                    ROS_INFO_STREAM("Finding matching object for " << current_obj.type << "...");
                     
                     //each obj in the kit, find a matching object on the tray
                     int model_len = latest_image_->models.size();
@@ -175,6 +199,9 @@ class MyCompetitionClass
                             used_indices.insert(model);
                             //TODO:  move arm to position
                             //transform relative position of part to world position of part -- in assignment
+                            // Retrieve the transformation
+
+                            // tf2_ros::Buffer.lookupTransform("to_frame", "from_frame", "how_recent", "how_long_to_wait");
                             //move arm to world position
                         }
                     }

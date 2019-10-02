@@ -10,15 +10,16 @@ project(lab3_package)
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   #moveit_control_interface
-  #moveit_core
-  #moveit_kinematics
-  #moveit_move_group
-  #moveit_planning_interface
-  #moveit_ros_planning
-  #osrf_gear
-  #catkin can't seem to find any of these. commenting out for now - Naomi
+  moveit_core
+  moveit_kinematics
+  moveit_ros_move_group
+  moveit_ros_planning_interface
+  moveit_ros_planning
+  osrf_gear
   roscpp
   std_msgs
+  tf2
+  tf2_ros
   tf_conversions
   sensor_msgs
 )
