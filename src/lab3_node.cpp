@@ -195,13 +195,8 @@ class MyCompetitionClass
                         //if object on tray has already been used, do not pull that object
                         if (current_model.type.compare(current_obj.type) == 0 && used_indices.find(model) == used_indices.end()) {
                             ROS_INFO_STREAM("Grabbing " << current_model.type << " at pose " << current_model.pose);
-                            used_indices.insert(model);
-                            //TODO:  move arm to position
-                            //transform relative position of part to world position of part -- in assignment
-                            // Retrieve the transformation
-
-                            // tf2_ros::Buffer.lookupTransform("to_frame", "from_frame", "how_recent", "how_long_to_wait");
-                            //move arm to world position
+							
+							//transform relative position of part to world position of part -- in assignment
                             geometry_msgs::PoseStamped part_pose, goal_pose;
                             part_pose.pose = current_model.pose;
                             tf2::doTransform(part_pose, goal_pose, tfStamped);
@@ -211,11 +206,18 @@ class MyCompetitionClass
                             goal_pose.pose.orientation.y = 0.707;
                             goal_pose.pose.orientation.z = 0.0;
 							
+							//move arm to world position
 							move_group.setPoseTarget(goal_pose);
                             moveit::planning_interface::MoveGroupInterface::Plan the_plan;
                             if (move_group.plan(the_plan)) {
 								//if plan succeeds
 								move_group.execute(the_plan);
+								
+								//keep track of which indices we've used already
+								used_indices.insert(model);
+								
+								//break out of for loop after successful grab of item
+								break;
 							}
                         }
                     }
