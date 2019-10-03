@@ -160,7 +160,7 @@ class MyCompetitionClass
         geometry_msgs::TransformStamped tfStamped;
         try {
             //tfStamped = tfBuffer->lookupTransform(move_group.getPlanningFrame().c_str(), "/ariac/logical_camera", ros::Time(0.0), ros::Duration(1.0));
-            tfStamped = tfBuffer->lookupTransform("world", "ariac/logical_camera", ros::Time(0.0), ros::Duration(1.0));
+            tfStamped = tfBuffer->lookupTransform("world", "logical_camera_frame", ros::Time(0.0), ros::Duration(1.0));
             ROS_DEBUG("Transform to [%s] from [%s]", tfStamped.header.frame_id.c_str(), tfStamped.child_frame_id.c_str());
         } 
         catch (tf2::TransformException &ex) {
