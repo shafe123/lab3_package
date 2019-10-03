@@ -210,12 +210,13 @@ class MyCompetitionClass
                             goal_pose.pose.orientation.x = 0.0;
                             goal_pose.pose.orientation.y = 0.707;
                             goal_pose.pose.orientation.z = 0.0;
-
+							
+							move_group.setPoseTarget(goal_pose);
                             moveit::planning_interface::MoveGroupInterface::Plan the_plan;
-                            move_group.plan(the_plan);
-                            
-                            move_group.execute(the_plan);
-                            
+                            if (move_group.plan(the_plan)) {
+								//if plan succeeds
+								move_group.execute(the_plan);
+							}
                         }
                     }
                 }
