@@ -194,7 +194,7 @@ class MyCompetitionClass
                         //also remove that object on the tray from consideration for now
                         //if object on tray has already been used, do not pull that object
                         if (current_model.type.compare(current_obj.type) == 0 && used_indices.find(model) == used_indices.end()) {
-                            ROS_INFO_STREAM("Grabbing " << current_model.type << " at pose " << current_model.pose);
+                            ROS_INFO_STREAM("Moving arm to " << current_model.type << " at relative pose " << current_model.pose);
 							
 							//transform relative position of part to world position of part -- in assignment
                             geometry_msgs::PoseStamped part_pose, goal_pose;
@@ -203,7 +203,7 @@ class MyCompetitionClass
                             goal_pose.pose.position.z += 0.10;
                             goal_pose.pose.orientation.w = 0.707;
                             goal_pose.pose.orientation.x = 0.0;
-                            goal_pose.pose.orientation.y = 0.707;
+                            goal_pose.pose.orientation.y = -0.707;
                             goal_pose.pose.orientation.z = 0.0;
 							
 							//move arm to world position
@@ -225,7 +225,7 @@ class MyCompetitionClass
             }
         }
         
-        completed_orders.clear();
+        received_orders_.clear();
       }
 
     private:
