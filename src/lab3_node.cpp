@@ -41,10 +41,8 @@
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "geometry_msgs/TransformStamped.h"
 
-// Declare the transformation buffer to maintain a list of transformations
-tf2_ros::Buffer tfBuffer;
-// Instantiate a listener that listens to the tf and tf_static topics and to update the buffer.
-tf2_ros::TransformListener tfListener(tfBuffer);
+
+
 
 // %Tag(START_COMP)%
 /// Start the competition by waiting for and then calling the start ROS Service.
@@ -74,7 +72,7 @@ void start_competition(ros::NodeHandle & node) {
 class MyCompetitionClass
 {
     public:
-        moveit::planning_interface::MoveGroupInterface move_group("manipulator");
+      moveit::planning_interface::MoveGroupInterface move_group = moveit::planning_interface::MoveGroupInterface("manipulator");
     
       explicit MyCompetitionClass(ros::NodeHandle & node)
       : has_been_zeroed_(false)
@@ -154,14 +152,15 @@ class MyCompetitionClass
         latest_image_ = image_msg;
       }
 
-      void process_orders() {
+      void process_orders(tf2_ros::Buffer* tfBuffer) {
         int order_len = received_orders_.size();
         std::set<int> used_indices;
         std::vector<int> completed_orders;
         
         geometry_msgs::TransformStamped tfStamped;
         try {
-            tfStamped = tfBuffer.lookupTransform(move_group.getPlanningFrame().c_str(), latest_image_->pose.c_str(), ros::Time(0.0), ros::Duration(1.0));
+            //tfStamped = tfBuffer->lookupTransform(move_group.getPlanningFrame().c_str(), "/ariac/logical_camera", ros::Time(0.0), ros::Duration(1.0));
+            tfStamped = tfBuffer->lookupTransform("world", "ariac/logical_camera", ros::Time(0.0), ros::Duration(1.0));
             ROS_DEBUG("Transform to [%s] from [%s]", tfStamped.header.frame_id.c_str(), tfStamped.child_frame_id.c_str());
         } 
         catch (tf2::TransformException &ex) {
@@ -203,6 +202,20 @@ class MyCompetitionClass
 
                             // tf2_ros::Buffer.lookupTransform("to_frame", "from_frame", "how_recent", "how_long_to_wait");
                             //move arm to world position
+                            geometry_msgs::PoseStamped part_pose, goal_pose;
+                            part_pose.pose = current_model.pose;
+                            tf2::doTransform(part_pose, goal_pose, tfStamped);
+                            goal_pose.pose.position.z += 0.10;
+                            goal_pose.pose.orientation.w = 0.707;
+                            goal_pose.pose.orientation.x = 0.0;
+                            goal_pose.pose.orientation.y = 0.707;
+                            goal_pose.pose.orientation.z = 0.0;
+
+                            moveit::planning_interface::MoveGroupInterface::Plan the_plan;
+                            move_group.plan(the_plan);
+                            
+                            move_group.execute(the_plan);
+                            
                         }
                     }
                 }
@@ -233,7 +246,10 @@ void proximity_sensor_callback(const sensor_msgs::Range::ConstPtr & msg) {
 int main(int argc, char ** argv) {
   // Last argument is the default name of the node.
   ros::init(argc, argv, "ariac_example_node");
-
+  // Declare the transformation buffer to maintain a list of transformations
+  tf2_ros::Buffer tfBuffer;
+  // Instantiate a listener that listens to the tf and tf_static topics and to update the buffer.
+  tf2_ros::TransformListener tfListener(tfBuffer);
   ros::NodeHandle node;
 
   // Instance of custom class from above.
@@ -275,7 +291,7 @@ int main(int argc, char ** argv) {
     {
         ros::spinOnce();
         //handle all orders for MyCompetitionClass
-        comp_class.process_orders();
+        comp_class.process_orders(&tfBuffer);
         loop_rate.sleep();
     }
 
